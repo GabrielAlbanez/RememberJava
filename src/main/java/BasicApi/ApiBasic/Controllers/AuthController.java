@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import BasicApi.ApiBasic.Controllers.dto.LoginRequest;
+import BasicApi.ApiBasic.Controllers.dto.ResponseLoginUser;
 import BasicApi.ApiBasic.services.AuthService;
 
 @RestController
@@ -18,33 +19,22 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
+    public ResponseEntity<ResponseLoginUser> login(@RequestBody LoginRequest request) {
+        System.out.println("Iniciando processo de login para: " + request.email() + " com senha: " + request.password());
         try {
+            if(request.email() == null || request.password() == null) {
+                return ResponseEntity.status(401).body(new ResponseLoginUser("Email e senha são obrigatórios"));
+            }
             System.out.println("Tentando autenticar usuário: " + request.email() + request.password());
             String token = authService.authenticate(request.email(), request.password());
-            return ResponseEntity.ok(new JwtResponse(token));
+            return ResponseEntity.ok(new ResponseLoginUser(token));
         } catch (org.springframework.security.core.AuthenticationException e) {
             System.out.println("Erro de autenticação: " + e.getMessage());
-            return ResponseEntity.status(401).body("Email ou senha inválidos");
+            return ResponseEntity.status(401).body(new ResponseLoginUser("Email ou senha inválidos"));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Erro interno");
+            return ResponseEntity.status(500).body(new ResponseLoginUser("Erro interno"));
         }
     }
 
-    public static class JwtResponse {
-        private String token;
-
-        public JwtResponse(String token) {
-            this.token = token;
-        }
-
-        public String getToken() {
-            return token;
-        }
-
-        public void setToken(String token) {
-            this.token = token;
-        }
-    }
 }

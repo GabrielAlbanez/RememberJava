@@ -35,6 +35,10 @@ public class UserService {
             throw new IllegalArgumentException("Email já cadastrado");
         }
 
+        if(userDto.name() == null || userDto.email() == null || userDto.password() == null) {
+            throw new IllegalArgumentException("Nome, email e senha são obrigatórios");
+        }
+
         User user = new User();
         user.setName(userDto.name());
         user.setEmail(userDto.email());
