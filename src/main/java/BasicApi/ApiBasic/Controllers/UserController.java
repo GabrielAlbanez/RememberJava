@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import BasicApi.ApiBasic.Controllers.dto.CreateUser;
+import BasicApi.ApiBasic.Controllers.dto.ResponseDeleteUser;
 import BasicApi.ApiBasic.Controllers.dto.ResponseUserCreate;
 import BasicApi.ApiBasic.Enum.RoleUser;
 import BasicApi.ApiBasic.model.User;
@@ -51,6 +53,19 @@ public class UserController {
             return ResponseEntity.status(500).body(new ResponseUserCreate("Erro interno no servidor"));
         }
     }
+
+    @DeleteMapping("/deleteUser/{email}") 
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResponseDeleteUser> deleteUser(@PathVariable  String email) {
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDeleteUser("User not found")); // Retorna "Usuario não encontrado!"
+        }
+
+        userService.deleteUseByEmail(email);
+        return ResponseEntity.ok(new ResponseDeleteUser("User deleted successfully")); // Retorna "Usuario deletado com sucesso!"
+    } 
+    
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/promote/{id}")

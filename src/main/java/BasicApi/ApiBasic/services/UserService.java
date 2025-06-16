@@ -67,6 +67,13 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    public void deleteUseByEmail(String email) {
+        if (!userExistsByEmail(email)) {
+            throw new IllegalArgumentException("Email não encontrado");
+        }
+        userRepository.deleteByEmail(email);
+    }
+
     public boolean userExistsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
